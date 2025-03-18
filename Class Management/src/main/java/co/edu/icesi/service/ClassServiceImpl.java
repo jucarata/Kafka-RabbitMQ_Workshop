@@ -3,11 +3,13 @@ package co.edu.icesi.service;
 import co.edu.icesi.dto.ClassesDTO;
 import co.edu.icesi.dto.ClassesResponseDTO;
 import co.edu.icesi.dto.TrainerDTO;
+import co.edu.icesi.dto.NotificacionDTO; // Ajusta el import si tu clase está en otro paquete
 import co.edu.icesi.exceptions.NoTrainerFoundException;
 import co.edu.icesi.mappers.ClassMapper;
 import co.edu.icesi.persistence.model.Classes;
 import co.edu.icesi.persistence.repository.ClassRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,14 +23,19 @@ public class ClassServiceImpl implements ClassService {
 
     private final ClassRepository classRepository;
     private final ClassMapper classMapper;
-
     private final RestTemplate restTemplate;
 
     @Value("${trainer.service.url}")
     private String trainerServiceUrl;
 
+    // Inyección de RabbitTemplate para enviar notificaciones
     @Autowired
-    public ClassServiceImpl(ClassRepository classRepository, ClassMapper classMapper, RestTemplate restTemplate) {
+    private RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    public ClassServiceImpl(ClassRepository classRepository,
+                            ClassMapper classMapper,
+                            RestTemplate restTemplate) {
         this.classRepository = classRepository;
         this.classMapper = classMapper;
         this.restTemplate = restTemplate;
@@ -40,13 +47,26 @@ public class ClassServiceImpl implements ClassService {
         Classes classes = classMapper.toClass(classDTO);
 
         TrainerDTO trainerDTO = fetchTrainer(classes.getTrainerID().getTrainerId());
-
         if (trainerDTO == null) {
             throw new NoTrainerFoundException();
         }
 
         Classes savedClass = classRepository.save(classes);
-        return savedClass.getId() != null;
+
+        // Enviar notificación al terminar de guardar la clase
+        if (savedClass.getId() != null) {
+            NotificacionDTO notificacion = new NotificacionDTO(
+                    "admin",
+                    "Se ha programado una clase con ID: " + savedClass.getId()
+            );
+            rabbitTemplate.convertAndSend(
+                    "notificacion.exchange",
+                    "notificacion.routingkey",
+                    notificacion
+            );
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -62,13 +82,11 @@ public class ClassServiceImpl implements ClassService {
 
     private ClassesResponseDTO fetchTrainer(Classes classes) {
         TrainerDTO trainerDTO = fetchTrainer(classes.getTrainerID().getTrainerId());
-
         return classMapper.toDTO(classes, trainerDTO);
     }
 
     private TrainerDTO fetchTrainer(Long id){
         String url = trainerServiceUrl + "/entrenadores/" + id;
-
         return restTemplate.getForObject(url, TrainerDTO.class);
     }
 }
