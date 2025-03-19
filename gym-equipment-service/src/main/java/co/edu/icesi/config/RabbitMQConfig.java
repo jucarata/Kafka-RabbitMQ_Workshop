@@ -13,21 +13,14 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMQConfig {
 
-    // Nombres para evitar errores de tipeo y facilitar mantenibilidad
+    // Nombres de Exchange, Queue y Routing Key (coherentes)
     public static final String EXCHANGE_NAME = "notificacion.exchange";
-    public static final String NOTIFICATION_QUEUE_NAME = "Notification";
-    public static final String DEAD_LETTER_QUEUE_NAME = "DeadLQ";
-    public static final String NOTIFICATION_ROUTING_KEY = "notificacion.success";
-    public static final String DEAD_LETTER_ROUTING_KEY = "x-dead-letter-routing-key";
+    public static final String NOTIFICATION_QUEUE_NAME = "notificacion.queue";
+    public static final String NOTIFICATION_ROUTING_KEY = "notificacion.routingkey";
 
     @Bean
     public Queue notificationQueue() {
         return new Queue(NOTIFICATION_QUEUE_NAME, true);
-    }
-
-    @Bean
-    public Queue deadLetterQueue() {
-        return new Queue(DEAD_LETTER_QUEUE_NAME, true);
     }
 
     @Bean
@@ -45,15 +38,6 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Binding deadLetterBinding(Queue deadLetterQueue,
-                                     TopicExchange notificacionExchange) {
-        return BindingBuilder
-                .bind(deadLetterQueue)
-                .to(notificacionExchange)
-                .with(DEAD_LETTER_ROUTING_KEY);
-    }
-
-    @Bean
     public Jackson2JsonMessageConverter messageConverter() {
         return new Jackson2JsonMessageConverter();
     }
@@ -64,5 +48,4 @@ public class RabbitMQConfig {
         rabbitTemplate.setMessageConverter(messageConverter());
         return rabbitTemplate;
     }
-
 }
