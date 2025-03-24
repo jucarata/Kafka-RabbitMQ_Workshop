@@ -5,9 +5,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class NotificacionConsumer {
 
-    @RabbitListener(queues = "notificacion.queue") // Debe coincidir con "notificacion.queue"
+    @RabbitListener(queues = "Notification") // Debe coincidir con "notificacion.queue"
     public void recibirNotificacion(NotificacionDTO notificacion) {
-        // Log para confirmar que recibimos el mensaje
         System.out.println("[NotificacionConsumer] Mensaje recibido: " + notificacion.getMensaje());
     }
 }

@@ -15,8 +15,8 @@ public class RabbitMQConfig {
 
     // Nombres de Exchange, Queue y Routing Key (coherentes)
     public static final String EXCHANGE_NAME = "notificacion.exchange";
-    public static final String NOTIFICATION_QUEUE_NAME = "notificacion.queue";
-    public static final String NOTIFICATION_ROUTING_KEY = "notificacion.routingkey";
+    public static final String NOTIFICATION_QUEUE_NAME = "Notification";
+    public static final String NOTIFICATION_ROUTING_KEY = "notificacion.success";
 
     @Bean
     public Queue notificationQueue() {

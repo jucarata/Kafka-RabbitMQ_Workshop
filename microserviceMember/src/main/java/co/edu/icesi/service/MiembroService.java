@@ -1,5 +1,6 @@
 package co.edu.icesi.service;
 
+import co.edu.icesi.config.RabbitMQConfig;
 import co.edu.icesi.model.Miembro;
 import co.edu.icesi.repository.MiembroRepository;
 import co.edu.icesi.dto.NotificacionDTO; // Se usa la misma clase de notificación
@@ -29,8 +30,8 @@ public class MiembroService {
                 "Se ha registrado un nuevo miembro: " + miembro.getNombre()
         );
         rabbitTemplate.convertAndSend(
-                "notificacion.exchange",
-                "notificacion.routingkey",
+                RabbitMQConfig.EXCHANGE_NAME,
+                RabbitMQConfig.NOTIFICATION_ROUTING_KEY,
                 notificacion
         );
 

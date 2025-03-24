@@ -1,5 +1,6 @@
 package co.edu.icesi.service;
 
+import co.edu.icesi.config.RabbitMQConfig;
 import co.edu.icesi.dto.ClassesDTO;
 import co.edu.icesi.dto.ClassesResponseDTO;
 import co.edu.icesi.dto.TrainerDTO;
@@ -60,8 +61,8 @@ public class ClassServiceImpl implements ClassService {
                     "Se ha programado una clase con ID: " + savedClass.getId()
             );
             rabbitTemplate.convertAndSend(
-                    "notificacion.exchange",
-                    "notificacion.routingkey",
+                    RabbitMQConfig.EXCHANGE_NAME,
+                    RabbitMQConfig.NOTIFICATION_ROUTING_KEY,
                     notificacion
             );
             return true;

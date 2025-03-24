@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitMQConfig {
     @Bean
     public Queue notificacionQueue() {
-        return new Queue("notificacion.queue", true);
+        return new Queue("Notification", true);
     }
     @Bean
     public Jackson2JsonMessageConverter messageConverter() {

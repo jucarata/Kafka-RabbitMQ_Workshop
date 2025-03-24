@@ -1,5 +1,6 @@
 package co.edu.icesi.service;
 
+import co.edu.icesi.config.RabbitMQConfig;
 import co.edu.icesi.model.Entrenador;
 import co.edu.icesi.repository.EntrenadorRepository;
 import co.edu.icesi.dto.NotificacionDTO;
@@ -34,8 +35,8 @@ public class EntrenadorService {
                 "Se ha agregado el entrenador: " + (nuevoEntrenador.getNombre() != null ? nuevoEntrenador.getNombre() : "")
         );
         rabbitTemplate.convertAndSend(
-                "notificacion.exchange",
-                "notificacion.routingkey",
+                RabbitMQConfig.EXCHANGE_NAME,
+                RabbitMQConfig.NOTIFICATION_ROUTING_KEY,
                 notificacion
         );
 
