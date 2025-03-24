@@ -1,14 +1,13 @@
 package co.edu.icesi.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 @Getter
 @Setter
