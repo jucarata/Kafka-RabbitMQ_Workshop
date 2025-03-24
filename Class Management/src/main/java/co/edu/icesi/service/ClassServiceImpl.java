@@ -13,6 +13,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -22,6 +23,8 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class ClassServiceImpl implements ClassService {
 
+    private final String CLASSES_TOPIC_NAME = "Ocupacion-Clases";
+
     private final ClassRepository classRepository;
     private final ClassMapper classMapper;
     private final RestTemplate restTemplate;
@@ -29,17 +32,18 @@ public class ClassServiceImpl implements ClassService {
     @Value("${trainer.service.url}")
     private String trainerServiceUrl;
 
-    // Inyección de RabbitTemplate para enviar notificaciones
-    @Autowired
-    private RabbitTemplate rabbitTemplate;
+    private final RabbitTemplate rabbitTemplate;
+    private final KafkaTemplate<String, ClassesDTO> kafkaTemplate;
 
     @Autowired
     public ClassServiceImpl(ClassRepository classRepository,
                             ClassMapper classMapper,
-                            RestTemplate restTemplate) {
+                            RestTemplate restTemplate, KafkaTemplate<String, ClassesDTO> kafkaTemplate, RabbitTemplate rabbitTemplate) {
         this.classRepository = classRepository;
         this.classMapper = classMapper;
         this.restTemplate = restTemplate;
+        this.kafkaTemplate = kafkaTemplate;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     @Override
@@ -60,11 +64,27 @@ public class ClassServiceImpl implements ClassService {
                     "admin",
                     "Se ha programado una clase con ID: " + savedClass.getId()
             );
+
+            ClassesDTO classesDTO = ClassesDTO.builder()
+                    .id(savedClass.getId())
+                    .name(savedClass.getName())
+                    .schedule(savedClass.getSchedule())
+                    .maxCapacity(savedClass.getMaxCapacity())
+                    .trainerId(trainerDTO.getId())
+                    .build();
+
             rabbitTemplate.convertAndSend(
                     RabbitMQConfig.EXCHANGE_NAME,
                     RabbitMQConfig.NOTIFICATION_ROUTING_KEY,
                     notificacion
             );
+
+            kafkaTemplate.send(
+                    CLASSES_TOPIC_NAME,
+                    classesDTO
+            );
+
+
             return true;
         }
         return false;
