@@ -1,0 +1,60 @@
+server:
+  port: 8080 # Puerto para API Gateway
+
+spring:
+  application:
+    name: apigateway
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9090/realms/gym
+
+  main:
+    allow-bean-definition-overriding: true
+
+  cloud:
+    gateway:
+      # Aquí es donde se definen las rutas
+      routes:
+        - id: equipment-service
+          uri: http://localhost:8081 # URI de tu microservicio de equipamiento
+          predicates:
+            - Path=/equipment/** # Peticiones que coincidan con este path
+          filters: # Añadido para consistencia, aunque no sea estrictamente necesario aquí si /equipment/** es la raíz
+            - StripPrefix=1
+
+        - id: member-service
+          uri: http://localhost:8080 # URI de tu microservicio de miembros
+          predicates:
+            - Path=/members/**
+          filters: # <-- AÑADIDO
+            - StripPrefix=1  # <-- AÑADIDO: Elimina el /members antes de enviar a 8080
+
+        - id: class-service
+          uri: http://localhost:8083 # URI de tu microservicio de clases
+          predicates:
+            - Path=/classes/**
+          filters: # Añadido para consistencia
+            - StripPrefix=1
+
+        - id: trainers-service
+          uri: http://localhost:8084 # URI de tu microservicio de entrenadores
+          predicates:
+            - Path=/trainers/**
+          filters: # Añadido para consistencia
+            - StripPrefix=1
+
+        - id: notifications-service
+          uri: http://localhost:8086 # URI de tu microservicio de notificaciones
+          predicates:
+            - Path=/notifications/**
+          filters: # Añadido para consistencia
+            - StripPrefix=1
+
+# Configuración de logging
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty: DEBUG
