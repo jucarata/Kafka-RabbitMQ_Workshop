@@ -11,12 +11,12 @@ spring:
             - Path=/api/miembros
 
         - id: trainers-service
-          uri: lb://trainers-service
+          uri: lb://trainer-service
           predicates:
             - Path=/api/entrenadores
 
         - id: equipment-service
-          uri: lb://equipment-service
+          uri: lb://ms-gestion-equipos
           predicates:
             - Path=/api/equipos
 
