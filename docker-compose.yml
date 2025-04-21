@@ -46,3 +46,15 @@ services:
     volumes:
       - ./realm-export.json:/opt/keycloak/data/import/realm.json
     command: start-dev --import-realm
+
+  eureka-server:
+    image: steeltoeoss/eureka-server
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - spring-net
+
+networks:
+  spring-net:
+    driver: bridge

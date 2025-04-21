@@ -4,30 +4,29 @@ spring:
 
   cloud:
     gateway:
-      # Aqu� es donde se definen las rutas
       routes:
         - id: member-service
-          uri: http://localhost:8081 # URI de tu microservicio de miembros
+          uri: lb://member-service
           predicates:
             - Path=/api/miembros
 
         - id: trainers-service
-          uri: http://localhost:8082 # URI de tu microservicio de entrenadores
+          uri: lb://trainer-service
           predicates:
             - Path=/api/entrenadores
 
         - id: equipment-service
-          uri: http://localhost:8083 # URI de tu microservicio de equipamiento
+          uri: lb://ms-gestion-equipos
           predicates:
-            - Path=/api/equipos # Peticiones que coincidan con este path
+            - Path=/api/equipos
 
         - id: class-service
-          uri: http://localhost:8084 # URI de tu microservicio de clases
+          uri: lb://class-service
           predicates:
             - Path=/api/clases
 
         - id: notifications-service
-          uri: http://localhost:8086 # URI de tu microservicio de notificaciones
+          uri: lb://notifications-service
           predicates:
             - Path=/notifications/**
 

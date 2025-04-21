@@ -3,14 +3,14 @@
 		xmlns="http://maven.apache.org/POM/4.0.0"
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                        https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                            https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.3</version>
+		<version>3.3.6</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
@@ -22,10 +22,12 @@
 
 	<properties>
 		<java.version>17</java.version>
+		<!-- Versión de Spring Cloud para alinear dependencias de Eureka y demás módulos -->
+		<spring-cloud.version>2023.0.1</spring-cloud.version>
 	</properties>
 
 	<dependencies>
-		<!-- Dependencias Spring Boot -->
+		<!-- Spring Boot starters -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -33,6 +35,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<!-- Eureka Discovery Client -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
 
 		<!-- Base de datos H2 para pruebas/desarrollo -->
@@ -50,14 +58,14 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<!-- Test -->
+		<!-- Tests -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
 
-		<!-- Security y Oauth2 (si se requiere) -->
+		<!-- Security y OAuth2 Resource Server -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
@@ -67,7 +75,7 @@
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 
-		<!-- AMQP (RabbitMQ) -->
+		<!-- RabbitMQ (AMQP) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-amqp</artifactId>
@@ -79,17 +87,30 @@
 			<artifactId>spring-kafka</artifactId>
 		</dependency>
 
+		<!-- Swagger / OpenAPI UI -->
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 			<version>2.5.0</version>
 		</dependency>
-
 	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<!-- Import de la BOM de Spring Cloud para versiones compatibles -->
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<build>
 		<plugins>
-			<!-- Plugin de compilación con Annotation Processing para Lombok -->
+			<!-- Compiler Plugin con annotation processing para Lombok -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -107,13 +128,13 @@
 				</configuration>
 			</plugin>
 
-			<!-- Plugin de Spring Boot -->
+			<!-- Spring Boot Maven Plugin -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
 					<excludes>
-						<!-- Excluir Lombok del jar final -->
+						<!-- Excluir Lombok del JAR final -->
 						<exclude>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
@@ -123,5 +144,13 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<repositories>
+		<!-- Repositorio para artefactos de Spring Cloud -->
+		<repository>
+			<id>spring-releases</id>
+			<url>https://repo.spring.io/release</url>
+		</repository>
+	</repositories>
 
 </project>
